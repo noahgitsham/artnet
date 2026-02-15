@@ -1,4 +1,4 @@
-use std::{ffi::CStr, mem::MaybeUninit, net::{IpAddr, Ipv4Addr}};
+use std::{ffi::CStr, mem::MaybeUninit, net::{Ipv4Addr}};
 
 #[allow(nonstandard_style, unused)]
 pub enum IFF {
@@ -26,8 +26,8 @@ pub enum IFF {
 #[derive(Debug)]
 pub struct NetworkInterface {
     pub name: String,
-    pub addr: Option<IpAddr>,
-    pub _subnet_mask: Option<IpAddr>,
+    pub addr: Option<Ipv4Addr>,
+    pub _subnet_mask: Option<Ipv4Addr>,
     pub flags: u32,
 }
 
@@ -55,7 +55,7 @@ pub struct NetworkInterfaceIter {
     next: *mut libc::ifaddrs,
 }
 
-pub fn addr_from_c_sock(sock: *mut libc::sockaddr) -> Option<IpAddr> {
+pub fn addr_from_c_sock(sock: *mut libc::sockaddr) -> Option<Ipv4Addr> {
     if sock.is_null() { return None }
     let addr = unsafe {*sock};
     match addr.sa_family as libc::c_int {
@@ -64,7 +64,7 @@ pub fn addr_from_c_sock(sock: *mut libc::sockaddr) -> Option<IpAddr> {
             let ip: [i8; 4] = addr.sa_data[2..6]
                 .try_into().unwrap();
             let ip_u = ip.map(|i| i as u8);
-            Some(IpAddr::V4(Ipv4Addr::from_octets(ip_u)))
+            Some(Ipv4Addr::from_octets(ip_u))
         }
         // libc::AF_INET6 => {
         //     println!("{:?}, ", addr.sa_data);

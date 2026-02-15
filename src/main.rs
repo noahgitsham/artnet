@@ -4,6 +4,8 @@ mod dmx;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::net::UdpSocket;
+use std::thread::sleep;
+use std::time::Duration;
 
 fn _ping(addr: IpAddr) {
     let port = artnet::ARTPOLL_UDP_PORT;
@@ -20,7 +22,14 @@ fn main() -> std::io::Result<()> {
 
     let broadcast_addr = artnet::get_likely_broadcast_addr()
         .expect("Couldn't find interface address");
-    let _ = artnet::ArtPoll::new_poll(broadcast_addr);
+
+    println!("{}", broadcast_addr);
+
+    for _ in 0..10 {
+        artnet::ArtPoll::default(broadcast_addr).poll();
+        println!("Polling...");
+        sleep(Duration::from_secs(1));
+    }
 
     // println!("{broadcast_addr:?}");
     Ok(())
